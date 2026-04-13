@@ -319,7 +319,7 @@
       </div>
       <div style="margin-bottom:16px;">
         <label id="lbl-wa" style="font-size:13px;font-weight:600;color:#444;display:block;margin-bottom:6px;">WhatsApp Number *</label>
-        <input type="tel" id="f-wa" placeholder="Enter your contact number" style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box;">
+        <input type="tel" id="f-wa" placeholder="Enter 10 digit number" maxlength="10" style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box;">
       </div>
       <div style="margin-bottom:24px;">
         <label id="lbl-clients" style="font-size:13px;font-weight:600;color:#444;display:block;margin-bottom:6px;">Number of Clients</label>
@@ -336,8 +336,8 @@
     </div>
     <div id="form-success" style="display:none;text-align:center;padding:16px 0;">
       <div style="font-size:52px;margin-bottom:14px;">✅</div>
-      <h3 style="font-size:20px;font-weight:700;margin-bottom:8px;">You're on the list!</h3>
-      <p style="color:#666;font-size:15px;">We'll get in touch with you over WhatsApp within 24 hours.</p>
+      <h3 id="success-title" style="font-size:20px;font-weight:700;margin-bottom:8px;">You're on the list!</h3>
+      <p id="success-note" style="color:#666;font-size:15px;">We'll get in touch with you over WhatsApp within 24 hours.</p>
     </div>
   </div>
   <div style="max-width:460px;margin:20px auto 0;display:flex;align-items:center;gap:12px;">
@@ -381,8 +381,13 @@ function submitForm() {
   const clients = document.getElementById('f-clients').value;
   const errEl = document.getElementById('form-error');
 
-  if (!name || !wa) {
-    errEl.textContent = 'Please enter your name and WhatsApp number.';
+  if (!name) {
+    errEl.textContent = 'Please enter your name.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (!wa || !/^\d{10}$/.test(wa)) {
+    errEl.textContent = 'Please enter a valid 10 digit number.';
     errEl.style.display = 'block';
     return;
   }
@@ -430,19 +435,21 @@ const t = {
     contact_title: "Ready to simplify invoice collection?",
     contact_sub: "Be among the CA firms to simplify invoice collection.",
     lbl_name: "Full Name *", lbl_wa: "WhatsApp Number *", lbl_clients: "Number of Clients",
-    ph_name: "Enter your name", ph_wa: "Enter your contact number",
+    ph_name: "Enter your name", ph_wa: "Enter 10 digit number",
     opts: ["1 – 10 clients", "11 – 30 clients", "31 – 50 clients", "50+ clients"],
     submit_btn: "📱 Request Early Access",
     form_note: "We'll get in touch with you over WhatsApp within 24 hours.",
     or_text: "OR",
     wa_btn: "Message us on WhatsApp",
     wa_note: "Send \"Hi\" to get started instantly",
+    success_title: "You're on the list!",
+    success_note: "We'll get in touch with you over WhatsApp within 24 hours.",
     footer: "© 2026 InvoQueue. All rights reserved."
   },
   hi: {
-    badge: "भारतीय CA फर्मों के लिए",
+    badge: "भारतीय CA firms के लिए",
     h1: "WhatsApp पर Invoice Collection। <span style='color:#1a73e8'>Zero मेहनत।</span>",
-    p: "InvoQueue CA फर्मों को client invoices automatically collect, organize और export करने में मदद करता है — कोई app नहीं, कोई login नहीं, सिर्फ WhatsApp।",
+    p: "InvoQueue CA firms को client invoices automatically collect, organize और export करने में मदद करता है — कोई app नहीं, कोई login नहीं, सिर्फ WhatsApp।",
     cta1: "📱 Early Access लें", cta2: "कैसे काम करता है",
     nav_cta: "Early Access लें",
     how_title: "कैसे काम करता है", how_sub: "3 आसान steps। कोई सीखने की जरूरत नहीं।",
@@ -451,7 +458,7 @@ const t = {
       ["Bulk में Invoice भेजें", "Clients या CA — दोनों WhatsApp पर invoice photos और PDFs bulk में forward कर सकते हैं।"],
       ["CA को Organized Data मिले", "CA को monthly summary और Tally/Genius-ready Excel file automatically मिले।"]
     ],
-    feat_title: "CA फर्म के लिए सब कुछ",
+    feat_title: "CA firm के लिए सब कुछ",
     feat_sub: "भारतीय CA practices के लिए खास बना।",
     f: [
       ["AI Invoice Extraction", "किसी भी invoice image से vendor name, GSTIN, amount, GST, और date automatically निकाले।"],
@@ -464,13 +471,15 @@ const t = {
     contact_title: "Invoice collection आसान बनाने के लिए तैयार हैं?",
     contact_sub: "Invoice collection को आसान बनाने वाली CA firms में शामिल हों।",
     lbl_name: "पूरा नाम *", lbl_wa: "WhatsApp नंबर *", lbl_clients: "Clients की संख्या",
-    ph_name: "अपना नाम दर्ज करें", ph_wa: "अपना नंबर दर्ज करें",
+    ph_name: "अपना नाम दर्ज करें", ph_wa: "10 अंकों का नंबर दर्ज करें",
     opts: ["1 – 10 clients", "11 – 30 clients", "31 – 50 clients", "50+ clients"],
     submit_btn: "📱 Early Access लें",
     form_note: "24 घंटे में WhatsApp पर आपसे संपर्क करेंगे।",
     or_text: "या",
     wa_btn: "WhatsApp पर मैसेज करें",
     wa_note: "\"Hi\" भेजें और तुरंत शुरू करें",
+    success_title: "आप list में हैं!",
+    success_note: "24 घंटे में WhatsApp पर हम आपसे संपर्क करेंगे।",
     footer: "© 2026 InvoQueue. सर्वाधिकार सुरक्षित।"
   }
 };
@@ -516,6 +525,8 @@ function setLang(l) {
   document.getElementById('or-text').textContent = c.or_text;
   document.getElementById('wa-btn-text').textContent = c.wa_btn;
   document.getElementById('wa-btn-note').textContent = c.wa_note;
+  document.getElementById('success-title').textContent = c.success_title;
+  document.getElementById('success-note').textContent = c.success_note;
   document.getElementById('footer-copy').textContent = c.footer;
 
   // Active button
@@ -526,6 +537,9 @@ function setLang(l) {
 document.addEventListener('DOMContentLoaded', function () {
   setLang('en');
   document.getElementById('submit-btn').addEventListener('click', submitForm);
+  document.getElementById('f-wa').addEventListener('input', function () {
+    this.value = this.value.replace(/\D/g, '').slice(0, 10);
+  });
   document.getElementById('btn-en').addEventListener('click', function () { setLang('en'); });
   document.getElementById('btn-hi').addEventListener('click', function () { setLang('hi'); });
 });
