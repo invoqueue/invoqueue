@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InvoQueue – WhatsApp Invoice Management for CA Firms</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a1a; background: #fff; }
+
+  nav {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 40px; border-bottom: 1px solid #e8e8e8;
+    position: sticky; top: 0; background: #fff; z-index: 100;
+  }
+  .logo { display: flex; align-items: center; }
+  .nav-right { display: flex; align-items: center; gap: 12px; }
+  .lang-btn {
+    background: #f1f3f4; border: none; padding: 6px 16px;
+    border-radius: 20px; cursor: pointer; font-size: 13px;
+    font-weight: 600; color: #444; transition: all 0.2s;
+  }
+  .lang-btn.active { background: #1a73e8; color: #fff; }
+  .nav-cta {
+    background: #25D366; color: #fff; border: none;
+    padding: 8px 20px; border-radius: 6px; font-size: 14px;
+    font-weight: 600; cursor: pointer; text-decoration: none;
+  }
+
+  .hero {
+    text-align: center; padding: 80px 20px 60px;
+    background: linear-gradient(135deg, #f8fbff 0%, #eef4ff 100%);
+  }
+  .hero-badge {
+    display: inline-block; background: #e8f0fe; color: #1a73e8;
+    font-size: 12px; font-weight: 600; padding: 4px 14px;
+    border-radius: 20px; margin-bottom: 20px;
+  }
+  .hero h1 { font-size: 42px; font-weight: 700; line-height: 1.2; margin-bottom: 18px; }
+  .hero h1 span { color: #1a73e8; }
+  .hero p { font-size: 18px; color: #555; max-width: 560px; margin: 0 auto 32px; line-height: 1.6; }
+  .hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn-primary {
+    background: #25D366; color: #fff; padding: 14px 28px;
+    border-radius: 8px; font-size: 16px; font-weight: 600;
+    text-decoration: none;
+  }
+  .btn-secondary {
+    background: #fff; color: #1a73e8; padding: 14px 28px;
+    border-radius: 8px; font-size: 16px; font-weight: 600;
+    text-decoration: none; border: 2px solid #1a73e8;
+  }
+
+  .demo-box {
+    border-radius: 16px; max-width: 310px; margin: 40px auto 0;
+    overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    background: #e5ddd5;
+  }
+  .wa-header {
+    background: #075E54; padding: 10px 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .wa-avatar {
+    width: 36px; height: 36px; background: #128C7E;
+    border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; color: #fff; font-size: 12px;
+    font-weight: 700; flex-shrink: 0;
+  }
+  .wa-info { flex: 1; }
+  .wa-name { color: #fff; font-size: 14px; font-weight: 600; line-height: 1.2; }
+  .wa-status { color: rgba(255,255,255,0.72); font-size: 11px; }
+  .wa-body { padding: 12px 10px 14px; display: flex; flex-direction: column; gap: 6px; }
+  .msg {
+    position: relative; max-width: 83%;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+  }
+  .msg.recv {
+    background: #fff; border-radius: 0 8px 8px 8px;
+  }
+  .msg.recv::before {
+    content: ''; position: absolute;
+    top: 0; left: -8px;
+    border-width: 0 8px 8px 0;
+    border-style: solid;
+    border-color: transparent #fff transparent transparent;
+  }
+  .msg.sent {
+    background: #d9fdd3; border-radius: 8px 0 8px 8px; margin-left: auto;
+  }
+  .msg.sent::after {
+    content: ''; position: absolute;
+    top: 0; right: -8px;
+    border-width: 8px 8px 0 0;
+    border-style: solid;
+    border-color: #d9fdd3 transparent transparent transparent;
+  }
+  .msg-content {
+    padding: 7px 10px 2px; font-size: 13.5px;
+    line-height: 1.45; color: #111;
+  }
+  .msg-time {
+    font-size: 10.5px; color: #667781;
+    text-align: right; padding: 0 8px 5px;
+  }
+  .ticks { color: #53bdeb; }
+  #submit-btn { background: #25D366; transition: background 0.15s, transform 0.1s; }
+  #submit-btn:hover:not(:disabled) { background: #1ebe5d; }
+  #submit-btn:active:not(:disabled) { transform: scale(0.97); }
+  .wa-btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: #25D366; color: #fff; padding: 14px 28px;
+    border-radius: 8px; font-size: 16px; font-weight: 600;
+    text-decoration: none; transition: background 0.15s, transform 0.1s;
+    cursor: pointer;
+  }
+  .wa-btn:hover { background: #1ebe5d; }
+  .wa-btn:active { transform: scale(0.97); }
+  .msg-cta {
+    border-top: 1px solid rgba(0,0,0,0.08);
+    padding: 7px 10px; text-align: center;
+    color: #00a884; font-size: 13px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px; cursor: pointer;
+  }
+  .demo-grid {
+    display: flex; gap: 20px; justify-content: center;
+    flex-wrap: wrap; margin-top: 40px;
+  }
+  .demo-grid .demo-box { margin: 0; }
+  .demo-label {
+    text-align: center; font-size: 12px; font-weight: 600;
+    color: #666; margin-top: 8px; letter-spacing: 0.3px;
+  }
+  .demo-wrap { display: flex; flex-direction: column; }
+  .msg-doc {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 10px 4px;
+  }
+  .doc-icon { font-size: 22px; flex-shrink: 0; }
+  .doc-name { font-size: 12.5px; color: #111; line-height: 1.3; }
+
+  .section { padding: 70px 20px; }
+  .section-title { text-align: center; font-size: 30px; font-weight: 700; margin-bottom: 10px; }
+  .section-sub { text-align: center; color: #666; font-size: 16px; margin-bottom: 48px; }
+
+  .steps {
+    display: flex; justify-content: center; gap: 32px;
+    flex-wrap: wrap; max-width: 900px; margin: 0 auto;
+  }
+  .step {
+    background: #fff; border: 1px solid #e8e8e8; border-radius: 12px;
+    padding: 28px 24px; width: 240px; text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .step-num {
+    width: 44px; height: 44px; background: #1a73e8; color: #fff;
+    border-radius: 50%; font-size: 18px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px;
+  }
+  .step h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+  .step p { font-size: 14px; color: #666; line-height: 1.5; }
+
+  .features-bg { background: #f8fbff; }
+  .features {
+    display: flex; flex-wrap: wrap; gap: 24px;
+    justify-content: center; max-width: 960px; margin: 0 auto;
+  }
+  .feature {
+    background: #fff; border-radius: 12px; padding: 28px 24px;
+    width: 280px; border: 1px solid #e8e8e8;
+  }
+  .feature-icon { font-size: 32px; margin-bottom: 14px; }
+  .feature h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+  .feature p { font-size: 14px; color: #666; line-height: 1.5; }
+
+  footer {
+    background: #1a1a1a; color: #aaa; text-align: center;
+    padding: 32px 20px; font-size: 14px;
+  }
+  footer a { color: #aaa; text-decoration: none; margin: 0 8px; }
+  .footer-logo { margin-bottom: 12px; }
+
+  @media(max-width:600px) {
+    nav { padding: 14px 20px; }
+    .hero h1 { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">
+    <svg height="36" viewBox="0 0 190 40" xmlns="http://www.w3.org/2000/svg">
+      <g transform="scale(0.571)">
+        <rect x="0" y="0" width="70" height="70" rx="14" fill="#1a73e8"/>
+        <rect x="18" y="16" width="10" height="38" rx="3" fill="white"/>
+        <circle cx="46" cy="35" r="14" fill="none" stroke="white" stroke-width="5"/>
+        <line x1="55" y1="44" x2="64" y2="53" stroke="white" stroke-width="5" stroke-linecap="round"/>
+      </g>
+      <text x="46" y="26" font-family="Segoe UI, Arial, sans-serif" font-size="21" font-weight="700" fill="#1a1a1a">Invo<tspan fill="#1a73e8">Queue</tspan></text>
+    </svg>
+  </div>
+  <div class="nav-right">
+    <button class="lang-btn active" id="btn-en">EN</button>
+    <button class="lang-btn" id="btn-hi">हि</button>
+    <a href="#contact" class="nav-cta" id="nav-cta">Get Early Access</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge" id="badge">FOR CA FIRMS IN INDIA</div>
+  <h1 id="hero-h1">Invoice Collection <span>on WhatsApp</span>. Zero Effort.</h1>
+  <p id="hero-p">InvoQueue helps CA firms collect, organize and export client invoices automatically — no app, no login, just WhatsApp.</p>
+  <div class="hero-btns">
+    <a href="#contact" class="btn-primary" id="cta1">📱 Get Early Access</a>
+    <a href="#how" class="btn-secondary" id="cta2">See How It Works</a>
+  </div>
+  <div class="demo-grid">
+    <div class="demo-wrap">
+      <div class="demo-box">
+        <div class="wa-header">
+          <div class="wa-avatar">IQ</div>
+          <div class="wa-info">
+            <div class="wa-name">InvoQueue</div>
+            <div class="wa-status">online</div>
+          </div>
+        </div>
+        <div class="wa-body">
+          <div class="msg recv">
+            <div class="msg-content">👋 Welcome to <strong>InvoQueue!</strong><br><br>Who are you?<br>1 — I'm a CA<br>2 — I'm a Business Owner</div>
+            <div class="msg-time">10:01</div>
+          </div>
+          <div class="msg sent">
+            <div class="msg-content">1</div>
+            <div class="msg-time">10:01 <span class="ticks">✓✓</span></div>
+          </div>
+          <div class="msg recv">
+            <div class="msg-content">Great! Please reply with:<br><br><strong>Full Name | ICAI No.</strong><br><em>Example: Ramesh Sharma | 123456</em></div>
+            <div class="msg-time">10:02</div>
+          </div>
+          <div class="msg sent">
+            <div class="msg-content">Ramesh Sharma | 123456</div>
+            <div class="msg-time">10:02 <span class="ticks">✓✓</span></div>
+          </div>
+          <div class="msg recv">
+            <div class="msg-content">✅ Details received!<br><br>Verifying your ICAI membership. We'll notify you within a few hours 🙏</div>
+            <div class="msg-time">10:03</div>
+          </div>
+        </div>
+      </div>
+      <div class="demo-label">Step 1 — CA Registration</div>
+    </div>
+    <div class="demo-wrap">
+      <div class="demo-box">
+        <div class="wa-header">
+          <div class="wa-avatar">IQ</div>
+          <div class="wa-info">
+            <div class="wa-name">InvoQueue</div>
+            <div class="wa-status">online</div>
+          </div>
+        </div>
+        <div class="wa-body">
+          <div class="msg sent">
+            <div class="msg-doc"><span class="doc-icon">📄</span><span class="doc-name">Invoice_Apr2025.pdf</span></div>
+            <div class="msg-time">10:05 <span class="ticks">✓✓</span></div>
+          </div>
+          <div class="msg recv">
+            <div class="msg-content"><strong>Invoice Details</strong><br>Vendor: Sharma Traders<br>Amount: ₹45,000 | GST: ₹8,100<br>Date: 12 Apr 2025<br><br>Reply <strong>CONFIRM</strong> or <strong>EDIT</strong></div>
+            <div class="msg-time">10:05</div>
+          </div>
+          <div class="msg sent">
+            <div class="msg-content">CONFIRM</div>
+            <div class="msg-time">10:05 <span class="ticks">✓✓</span></div>
+          </div>
+          <div class="msg recv">
+            <div class="msg-content">✅ Invoice saved!<br>Your CA will be notified.</div>
+            <div class="msg-time">10:06</div>
+            <div class="msg-cta"><span>⬇</span> Download Report</div>
+          </div>
+        </div>
+      </div>
+      <div class="demo-label">Step 2 — Send Invoices</div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <h2 class="section-title" id="how-title">How It Works</h2>
+  <p class="section-sub" id="how-sub">3 simple steps. No learning curve.</p>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><h3 id="s0-title">CA Adds Clients</h3><p id="s0-desc">CA registers their clients on InvoQueue via WhatsApp in minutes.</p></div>
+    <div class="step"><div class="step-num">2</div><h3 id="s1-title">Clients Forward Invoices</h3><p id="s1-desc">Clients simply forward invoice photos or PDFs to InvoQueue on WhatsApp.</p></div>
+    <div class="step"><div class="step-num">3</div><h3 id="s2-title">CA Gets Organized Data</h3><p id="s2-desc">CA receives a monthly summary and Tally/Genius-ready Excel file automatically.</p></div>
+  </div>
+</section>
+
+<section class="section features-bg" id="features">
+  <h2 class="section-title" id="feat-title">Everything a CA Firm Needs</h2>
+  <p class="section-sub" id="feat-sub">Built specifically for Indian CA practices.</p>
+  <div class="features">
+    <div class="feature"><div class="feature-icon">🤖</div><h3 id="f0-title">AI Invoice Extraction</h3><p id="f0-desc">Automatically extracts vendor name, GSTIN, amount, GST, and date from any invoice image.</p></div>
+    <div class="feature"><div class="feature-icon">📊</div><h3 id="f1-title">Monthly Summary</h3><p id="f1-desc">Get a complete monthly summary of all purchase and sales invoices with ITC calculations.</p></div>
+    <div class="feature"><div class="feature-icon">📥</div><h3 id="f2-title">Tally & Genius Export</h3><p id="f2-desc">Download a ready-to-import Excel file compatible with Tally and Genius software.</p></div>
+    <div class="feature"><div class="feature-icon">⚠️</div><h3 id="f3-title">Smart Validations</h3><p id="f3-desc">Auto-detects missing GSTINs, duplicate invoices, and GSTIN mismatches.</p></div>
+    <div class="feature"><div class="feature-icon">💬</div><h3 id="f4-title">Pure WhatsApp</h3><p id="f4-desc">No app to download. No login. Clients and CAs use WhatsApp they already know.</p></div>
+    <div class="feature"><div class="feature-icon">🔒</div><h3 id="f5-title">Secure & Private</h3><p id="f5-desc">Your client data stays private. No third party access. Ever.</p></div>
+  </div>
+</section>
+
+<section class="section features-bg" id="contact">
+  <h2 class="section-title" id="contact-title">Ready to simplify invoice collection?</h2>
+  <p class="section-sub" id="contact-sub">Be among the first CA firms to simplify invoice collection.</p>
+  <div style="max-width:460px;margin:0 auto;background:#fff;padding:36px;border-radius:14px;border:1px solid #e8e8e8;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+    <div id="form-fields">
+      <div style="margin-bottom:16px;">
+        <label id="lbl-name" style="font-size:13px;font-weight:600;color:#444;display:block;margin-bottom:6px;">Full Name *</label>
+        <input type="text" id="f-name" placeholder="Enter your name" style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box;">
+      </div>
+      <div style="margin-bottom:16px;">
+        <label id="lbl-wa" style="font-size:13px;font-weight:600;color:#444;display:block;margin-bottom:6px;">WhatsApp Number *</label>
+        <input type="tel" id="f-wa" placeholder="Enter your contact number" style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box;">
+      </div>
+      <div style="margin-bottom:24px;">
+        <label id="lbl-clients" style="font-size:13px;font-weight:600;color:#444;display:block;margin-bottom:6px;">Number of Clients</label>
+        <select id="f-clients" style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:8px;font-size:14px;background:#fff;outline:none;box-sizing:border-box;">
+          <option id="opt1">1 – 10 clients</option>
+          <option id="opt2">11 – 30 clients</option>
+          <option id="opt3">31 – 50 clients</option>
+          <option id="opt4">50+ clients</option>
+        </select>
+      </div>
+      <p id="form-error" style="display:none;font-size:13px;color:#e53935;margin-bottom:10px;text-align:center;"></p>
+      <button id="submit-btn" style="width:100%;color:#fff;border:none;padding:14px;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;">📱 Request Early Access</button>
+      <p id="form-note" style="font-size:12px;color:#999;text-align:center;margin-top:12px;">We'll get in touch with you over WhatsApp within 24 hours.</p>
+    </div>
+    <div id="form-success" style="display:none;text-align:center;padding:16px 0;">
+      <div style="font-size:52px;margin-bottom:14px;">✅</div>
+      <h3 style="font-size:20px;font-weight:700;margin-bottom:8px;">You're on the list!</h3>
+      <p style="color:#666;font-size:15px;">We'll get in touch with you over WhatsApp within 24 hours.</p>
+    </div>
+  </div>
+  <div style="max-width:460px;margin:20px auto 0;display:flex;align-items:center;gap:12px;">
+    <div style="flex:1;height:1px;background:#ddd;"></div>
+    <span id="or-text" style="font-size:13px;color:#999;font-weight:600;">OR</span>
+    <div style="flex:1;height:1px;background:#ddd;"></div>
+  </div>
+  <div style="max-width:460px;margin:16px auto 0;text-align:center;">
+    <!-- Replace 919999999999 with your actual WhatsApp Business number -->
+    <a id="wa-cta-btn" href="https://wa.me/919999999999?text=Hi%2C%20I%27d%20like%20to%20register%20on%20InvoQueue"
+      target="_blank" rel="noopener noreferrer" class="wa-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg" style="pointer-events:none;flex-shrink:0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.558 4.121 1.533 5.857L.057 23.982l6.305-1.654A11.955 11.955 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.891 0-3.667-.502-5.2-1.378l-.374-.22-3.862 1.013 1.033-3.773-.242-.387A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+      <span id="wa-btn-text">Message us on WhatsApp</span>
+    </a>
+    <p id="wa-btn-note" style="font-size:12px;color:#999;margin-top:10px;">Send "Hi" to get started instantly</p>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">
+    <svg height="36" viewBox="0 0 190 40" xmlns="http://www.w3.org/2000/svg">
+      <g transform="scale(0.571)">
+        <rect x="0" y="0" width="70" height="70" rx="14" fill="#1a73e8"/>
+        <rect x="18" y="16" width="10" height="38" rx="3" fill="white"/>
+        <circle cx="46" cy="35" r="14" fill="none" stroke="white" stroke-width="5"/>
+        <line x1="55" y1="44" x2="64" y2="53" stroke="white" stroke-width="5" stroke-linecap="round"/>
+      </g>
+      <text x="46" y="26" font-family="Segoe UI, Arial, sans-serif" font-size="21" font-weight="700" fill="#ffffff">Invo<tspan fill="#1a73e8">Queue</tspan></text>
+    </svg>
+  </div>
+  <p id="footer-copy">© 2026 InvoQueue. All rights reserved.</p>
+</footer>
+
+<script>
+// ← Paste your Apps Script web app URL here after deploying
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxoPgEiGV_uGyAe17iH2J-gKi4VVnWNDkjVDNuLJdNQxRL2syF-CPX9Vgtl1kKKqvpZ/exec';
+
+function submitForm() {
+  const name = document.getElementById('f-name').value.trim();
+  const wa = document.getElementById('f-wa').value.trim();
+  const clients = document.getElementById('f-clients').value;
+  const errEl = document.getElementById('form-error');
+
+  if (!name || !wa) {
+    errEl.textContent = 'Please enter your name and WhatsApp number.';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+
+  const btn = document.getElementById('submit-btn');
+  btn.textContent = 'Submitting...';
+  btn.disabled = true;
+
+  fetch(SHEET_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ name, whatsapp: wa, clients })
+  })
+  .finally(() => {
+    document.getElementById('form-fields').style.display = 'none';
+    document.getElementById('form-success').style.display = 'block';
+  });
+}
+
+const t = {
+  en: {
+    badge: "FOR CA FIRMS IN INDIA",
+    h1: "Invoice Collection <span style='color:#1a73e8'>on WhatsApp</span>. Zero Effort.",
+    p: "InvoQueue helps CA firms collect, organize and export client invoices automatically — no app, no login, just WhatsApp.",
+    cta1: "📱 Get Early Access", cta2: "See How It Works",
+    nav_cta: "Get Early Access",
+    how_title: "How It Works", how_sub: "3 simple steps. No learning curve.",
+    s: [
+      ["CA Adds Clients", "CA registers their clients on InvoQueue via WhatsApp in minutes."],
+      ["Forward Invoices in Bulk", "Clients or CAs can forward invoice photos and PDFs in bulk — directly on WhatsApp."],
+      ["CA Gets Organized Data", "CA receives a monthly summary and Tally/Genius-ready Excel file automatically."]
+    ],
+    feat_title: "Everything a CA Firm Needs",
+    feat_sub: "Built specifically for Indian CA practices.",
+    f: [
+      ["AI Invoice Extraction", "Automatically extracts vendor name, GSTIN, amount, GST, and date from any invoice image."],
+      ["Monthly Summary", "Get a complete monthly summary of all purchase and sales invoices with ITC calculations."],
+      ["Tally & Genius Export", "Download a ready-to-import Excel file compatible with Tally and Genius software."],
+      ["Smart Validations", "Auto-detects missing GSTINs, duplicate invoices, and GSTIN mismatches."],
+      ["Pure WhatsApp", "No app to download. No login. Clients and CAs use WhatsApp they already know."],
+      ["Secure & Private", "Your client data stays private. No third party access. Ever."]
+    ],
+    contact_title: "Ready to simplify invoice collection?",
+    contact_sub: "Be among the CA firms to simplify invoice collection.",
+    lbl_name: "Full Name *", lbl_wa: "WhatsApp Number *", lbl_clients: "Number of Clients",
+    ph_name: "Enter your name", ph_wa: "Enter your contact number",
+    opts: ["1 – 10 clients", "11 – 30 clients", "31 – 50 clients", "50+ clients"],
+    submit_btn: "📱 Request Early Access",
+    form_note: "We'll get in touch with you over WhatsApp within 24 hours.",
+    or_text: "OR",
+    wa_btn: "Message us on WhatsApp",
+    wa_note: "Send \"Hi\" to get started instantly",
+    footer: "© 2026 InvoQueue. All rights reserved."
+  },
+  hi: {
+    badge: "भारतीय CA फर्मों के लिए",
+    h1: "WhatsApp पर Invoice Collection। <span style='color:#1a73e8'>Zero मेहनत।</span>",
+    p: "InvoQueue CA फर्मों को client invoices automatically collect, organize और export करने में मदद करता है — कोई app नहीं, कोई login नहीं, सिर्फ WhatsApp।",
+    cta1: "📱 Early Access लें", cta2: "कैसे काम करता है",
+    nav_cta: "Early Access लें",
+    how_title: "कैसे काम करता है", how_sub: "3 आसान steps। कोई सीखने की जरूरत नहीं।",
+    s: [
+      ["CA Clients Add करें", "CA अपने clients को WhatsApp पर InvoQueue में मिनटों में register करें।"],
+      ["Bulk में Invoice भेजें", "Clients या CA — दोनों WhatsApp पर invoice photos और PDFs bulk में forward कर सकते हैं।"],
+      ["CA को Organized Data मिले", "CA को monthly summary और Tally/Genius-ready Excel file automatically मिले।"]
+    ],
+    feat_title: "CA फर्म के लिए सब कुछ",
+    feat_sub: "भारतीय CA practices के लिए खास बना।",
+    f: [
+      ["AI Invoice Extraction", "किसी भी invoice image से vendor name, GSTIN, amount, GST, और date automatically निकाले।"],
+      ["Monthly Summary", "ITC calculations के साथ सभी purchase और sales invoices की complete monthly summary।"],
+      ["Tally & Genius Export", "Tally और Genius software के साथ compatible import-ready Excel file download करें।"],
+      ["Smart Validations", "Missing GSTINs, duplicate invoices, और GSTIN mismatches auto-detect करे।"],
+      ["Pure WhatsApp", "कोई app download नहीं। कोई login नहीं। जो WhatsApp पहले से जानते हैं वही use करें।"],
+      ["Secure & Private", "आपका client data private रहता है। कोई third party access नहीं।"]
+    ],
+    contact_title: "Invoice collection आसान बनाने के लिए तैयार हैं?",
+    contact_sub: "Invoice collection को आसान बनाने वाली CA firms में शामिल हों।",
+    lbl_name: "पूरा नाम *", lbl_wa: "WhatsApp नंबर *", lbl_clients: "Clients की संख्या",
+    ph_name: "अपना नाम दर्ज करें", ph_wa: "अपना नंबर दर्ज करें",
+    opts: ["1 – 10 clients", "11 – 30 clients", "31 – 50 clients", "50+ clients"],
+    submit_btn: "📱 Early Access लें",
+    form_note: "24 घंटे में WhatsApp पर आपसे संपर्क करेंगे।",
+    or_text: "या",
+    wa_btn: "WhatsApp पर मैसेज करें",
+    wa_note: "\"Hi\" भेजें और तुरंत शुरू करें",
+    footer: "© 2026 InvoQueue. सर्वाधिकार सुरक्षित।"
+  }
+};
+
+function setLang(l) {
+  const c = t[l];
+
+  // Nav
+  document.getElementById('badge').textContent = c.badge;
+  document.getElementById('hero-h1').innerHTML = c.h1;
+  document.getElementById('hero-p').textContent = c.p;
+  document.getElementById('cta1').innerHTML = c.cta1;
+  document.getElementById('cta2').textContent = c.cta2;
+  document.getElementById('nav-cta').textContent = c.nav_cta;
+
+  // How it works
+  document.getElementById('how-title').textContent = c.how_title;
+  document.getElementById('how-sub').textContent = c.how_sub;
+  c.s.forEach((s, i) => {
+    document.getElementById('s' + i + '-title').textContent = s[0];
+    document.getElementById('s' + i + '-desc').textContent = s[1];
+  });
+
+  // Features
+  document.getElementById('feat-title').textContent = c.feat_title;
+  document.getElementById('feat-sub').textContent = c.feat_sub;
+  c.f.forEach((f, i) => {
+    document.getElementById('f' + i + '-title').textContent = f[0];
+    document.getElementById('f' + i + '-desc').textContent = f[1];
+  });
+
+  // Contact form
+  document.getElementById('contact-title').textContent = c.contact_title;
+  document.getElementById('contact-sub').textContent = c.contact_sub;
+  document.getElementById('lbl-name').textContent = c.lbl_name;
+  document.getElementById('lbl-wa').textContent = c.lbl_wa;
+  document.getElementById('lbl-clients').textContent = c.lbl_clients;
+  document.getElementById('f-name').placeholder = c.ph_name;
+  document.getElementById('f-wa').placeholder = c.ph_wa;
+  ['opt1','opt2','opt3','opt4'].forEach((id, i) => { document.getElementById(id).textContent = c.opts[i]; });
+  document.getElementById('submit-btn').textContent = c.submit_btn;
+  document.getElementById('form-note').textContent = c.form_note;
+  document.getElementById('or-text').textContent = c.or_text;
+  document.getElementById('wa-btn-text').textContent = c.wa_btn;
+  document.getElementById('wa-btn-note').textContent = c.wa_note;
+  document.getElementById('footer-copy').textContent = c.footer;
+
+  // Active button
+  document.getElementById('btn-en').className = 'lang-btn' + (l === 'en' ? ' active' : '');
+  document.getElementById('btn-hi').className = 'lang-btn' + (l === 'hi' ? ' active' : '');
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  setLang('en');
+  document.getElementById('submit-btn').addEventListener('click', submitForm);
+  document.getElementById('btn-en').addEventListener('click', function () { setLang('en'); });
+  document.getElementById('btn-hi').addEventListener('click', function () { setLang('hi'); });
+});
+</script>
+</body>
+</html>
