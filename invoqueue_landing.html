@@ -25,7 +25,10 @@
     background: #25D366; color: #fff; border: none;
     padding: 8px 20px; border-radius: 6px; font-size: 14px;
     font-weight: 600; cursor: pointer; text-decoration: none;
+    transition: background 0.15s, transform 0.1s;
   }
+  .nav-cta:hover { background: #1ebe5d; }
+  .nav-cta:active { transform: scale(0.97); }
 
   .hero {
     text-align: center; padding: 80px 20px 60px;
@@ -43,13 +46,18 @@
   .btn-primary {
     background: #25D366; color: #fff; padding: 14px 28px;
     border-radius: 8px; font-size: 16px; font-weight: 600;
-    text-decoration: none;
+    text-decoration: none; transition: background 0.15s, transform 0.1s;
   }
+  .btn-primary:hover { background: #1ebe5d; }
+  .btn-primary:active { transform: scale(0.97); }
   .btn-secondary {
     background: #fff; color: #1a73e8; padding: 14px 28px;
     border-radius: 8px; font-size: 16px; font-weight: 600;
     text-decoration: none; border: 2px solid #1a73e8;
+    transition: background 0.15s, color 0.15s, transform 0.1s;
   }
+  .btn-secondary:hover { background: #1a73e8; color: #fff; }
+  .btn-secondary:active { transform: scale(0.97); }
 
   .demo-box {
     border-radius: 16px; max-width: 310px; margin: 40px auto 0;
@@ -374,6 +382,7 @@
 <script>
 // ← Paste your Apps Script web app URL here after deploying
 const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxoPgEiGV_uGyAe17iH2J-gKi4VVnWNDkjVDNuLJdNQxRL2syF-CPX9Vgtl1kKKqvpZ/exec';
+let currentLang = 'en';
 
 function submitForm() {
   const name = document.getElementById('f-name').value.trim();
@@ -382,12 +391,12 @@ function submitForm() {
   const errEl = document.getElementById('form-error');
 
   if (!name) {
-    errEl.textContent = 'Please enter your name.';
+    errEl.textContent = t[currentLang].err_name;
     errEl.style.display = 'block';
     return;
   }
   if (!wa || !/^\d{10}$/.test(wa)) {
-    errEl.textContent = 'Please enter a valid 10 digit number.';
+    errEl.textContent = t[currentLang].err_wa;
     errEl.style.display = 'block';
     return;
   }
@@ -438,6 +447,8 @@ const t = {
     ph_name: "Enter your name", ph_wa: "Enter 10 digit number",
     opts: ["1 – 10 clients", "11 – 30 clients", "31 – 50 clients", "50+ clients"],
     submit_btn: "📱 Request Early Access",
+    err_name: "Please enter your name.",
+    err_wa: "Please enter a valid 10 digit number.",
     form_note: "We'll get in touch with you over WhatsApp within 24 hours.",
     or_text: "OR",
     wa_btn: "Message us on WhatsApp",
@@ -474,6 +485,8 @@ const t = {
     ph_name: "अपना नाम दर्ज करें", ph_wa: "10 अंकों का नंबर दर्ज करें",
     opts: ["1 – 10 clients", "11 – 30 clients", "31 – 50 clients", "50+ clients"],
     submit_btn: "📱 Early Access लें",
+    err_name: "कृपया अपना नाम दर्ज करें।",
+    err_wa: "कृपया 10 अंकों का valid नंबर दर्ज करें।",
     form_note: "24 घंटे में WhatsApp पर आपसे संपर्क करेंगे।",
     or_text: "या",
     wa_btn: "WhatsApp पर मैसेज करें",
@@ -485,6 +498,7 @@ const t = {
 };
 
 function setLang(l) {
+  currentLang = l;
   const c = t[l];
 
   // Nav
